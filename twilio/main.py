@@ -1,17 +1,31 @@
 from twilio.rest import Client
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
-# Your Twilio account SID and Auth Token
-account_sid = 'your_account_sid'
-auth_token = 'your_auth_token'
+# Twilio credentials (from env)
+ACCOUNT_SID = os.getenv("ACCOUNT_SID")
+AUTH_TOKEN = os.getenv("AUTH_TOKEN")
+TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
+TO_PHONE_NUMBER = os.getenv("TO_PHONE_NUMBER")
 
-# Create a Twilio client
-client = Client(account_sid, auth_token)
+# Initialize Twilio client
+client = Client(ACCOUNT_SID, AUTH_TOKEN)
 
-# Make the call
+# List all verified phone numbers
+verified_numbers = client.incoming_phone_numbers.list()
+for number in verified_numbers:
+    print(f"Verified number: {number.phone_number}")
+
+outbound_numbers = client.outgoing_caller_ids.list()
+for number in outbound_numbers:
+    print(f"Outbound number: {number.phone_number}")
+
+# # Make the call
 call = client.calls.create(
-    to='+1XXXXXXXXXX',   # The number you want to call (with country code)
-    from_='+1XXXXXXXXXX',  # Your Twilio number (with country code)
-    url='http://demo.twilio.com/docs/voice.xml'  # URL for TwiML instructions
+    twiml="<Response><Say>Hello, world!</Say></Response>",
+    to=TO_PHONE_NUMBER,
+    from_=TWILIO_PHONE_NUMBER,
 )
 
-print(f"Call SID: {call.sid}")
+print(f"Call initiated with SID: {call.sid}")
